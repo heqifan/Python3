@@ -1,0 +1,88 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# C:\ci\containers\00002o465pg\tmp\build\80754af9\combined_recipe, last modified Wed Jun 23 04:08:40 2021
+# ------------------------------------------------
+
+package:
+  name: netcdf4
+  version: 1.5.7
+source:
+  sha256: d145f9c12da29da3922d8b8aafea2a2a89501bcb28a219a46b7b828b57191594
+  url: https://pypi.io/packages/source/n/netCDF4/netCDF4-1.5.7.tar.gz
+build:
+  entry_points:
+    - nc3tonc4 = netCDF4.utils:nc3tonc4
+    - nc4tonc3 = netCDF4.utils:nc4tonc3
+    - ncinfo = netCDF4.utils:ncinfo
+  number: '0'
+  string: py39hb76ebac_0
+requirements:
+  build:
+    - vs2017_win-64 19.16.27032.1 hb4161e2_3
+    - vswhere 2.8.4 haa95532_0
+  host:
+    - blas 1.0 mkl
+    - ca-certificates 2021.5.25 haa95532_1
+    - certifi 2021.5.30 py39haa95532_0
+    - cftime 1.5.0 py39h080aedc_0
+    - curl 7.71.1 h2a8f88b_1
+    - cython 0.29.23 py39hd77b12b_0
+    - hdf4 4.2.13 h712560f_2
+    - hdf5 1.10.6 h7ebc959_0
+    - icc_rt 2019.0.0 h0cc432a_1
+    - intel-openmp 2021.2.0 haa95532_616
+    - jpeg 9b hb83a4c4_2
+    - krb5 1.18.2 hc04afaa_0
+    - libcurl 7.71.1 h2a8f88b_1
+    - libnetcdf 4.6.1 hf59b723_3
+    - libssh2 1.9.0 h7a1dbc1_1
+    - mkl 2021.2.0 haa95532_296
+    - mkl-service 2.3.0 py39h2bbff1b_1
+    - mkl_fft 1.3.0 py39h277e83a_2
+    - mkl_random 1.2.1 py39hf11a4ad_2
+    - numpy 1.20.2 py39ha4e8547_0
+    - numpy-base 1.20.2 py39hc2deb75_0
+    - openssl 1.1.1k h2bbff1b_0
+    - pip 21.1.2 py39haa95532_0
+    - python 3.9.5 h6244533_3
+    - setuptools 52.0.0 py39haa95532_0
+    - six 1.16.0 pyhd3eb1b0_0
+    - sqlite 3.35.4 h2bbff1b_0
+    - tzdata 2020f h52ac0ba_0
+    - vc 14.2 h21ff451_1
+    - vs2015_runtime 14.27.29016 h5e58377_2
+    - wheel 0.36.2 pyhd3eb1b0_0
+    - wincertstore 0.2 py39h2bbff1b_0
+    - zlib 1.2.11 h62dcd97_4
+  run:
+    - cftime
+    - hdf5 >=1.10.6,<1.10.7.0a0
+    - libnetcdf >=4.6.1,<5.0a0
+    - numpy >=1.20.2,<2.0a0
+    - python >=3.9,<3.10.0a0
+    - vc >=14.1,<15.0a0
+    - vs2015_runtime >=14.16.27012,<15.0a0
+test:
+  commands:
+    - ncinfo -h
+    - nc4tonc3 -h
+    - nc3tonc4 -h
+  imports:
+    - cftime
+    - netCDF4
+about:
+  dev_url: https://github.com/Unidata/netcdf4-python
+  doc_url: https://unidata.github.io/netcdf4-python
+  home: http://unidata.github.io/netcdf4-python/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Provides an object-oriented python interface to the netCDF version 4 library.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - dopplershift
+    - ocefpaf
+    - pelson
+    - xylar

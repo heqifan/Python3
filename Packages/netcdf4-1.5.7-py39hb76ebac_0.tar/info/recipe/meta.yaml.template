@@ -1,0 +1,60 @@
+{% set version = "1.5.7" %}
+
+package:
+  name: netcdf4
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/n/netCDF4/netCDF4-{{version}}.tar.gz
+  sha256: d145f9c12da29da3922d8b8aafea2a2a89501bcb28a219a46b7b828b57191594
+
+build:
+  number: 0
+  entry_points:
+    - ncinfo = netCDF4.utils:ncinfo
+    - nc4tonc3 = netCDF4.utils:nc4tonc3
+    - nc3tonc4 = netCDF4.utils:nc3tonc4
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - python >=3.6
+    - pip
+    - cython >=0.19
+    - cftime
+    - hdf5
+    - libnetcdf
+    - setuptools >=18.0
+    - wheel
+  run:
+    - python >=3.6
+    - {{ pin_compatible('numpy') }}
+    - cftime
+    - hdf5
+    - libnetcdf
+
+test:
+  imports:
+    - netCDF4
+    - cftime
+  commands:
+    - ncinfo -h
+    - nc4tonc3 -h
+    - nc3tonc4 -h
+
+about:
+  home: http://unidata.github.io/netcdf4-python/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: 'Provides an object-oriented python interface to the netCDF version 4 library.'
+  dev_url: https://github.com/Unidata/netcdf4-python
+  doc_url: https://unidata.github.io/netcdf4-python
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - pelson
+    - dopplershift
+    - xylar
