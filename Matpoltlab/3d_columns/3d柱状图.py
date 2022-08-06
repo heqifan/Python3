@@ -9,49 +9,53 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from mplfonts import use_font
-use_font('Noto Serif CJK SC')#指定中文字体
+# use_font('Noto Serif CJK SC')#指定中文字体
 
 import mpl_toolkits.mplot3d
-#from matplotlib.font_manager import _rebuild
+from matplotlib.font_manager import _rebuild
 
-#_rebuild() #reload一下
-# matplotlib.rcParams['font.family'] = 'Times New Roman'
-# matplotlib.rcParams['mathtext.default'] = 'regular'
+_rebuild() #reload一下
+matplotlib.rcParams['font.family'] = 'Times New Roman'
+matplotlib.rcParams['mathtext.default'] = 'regular'
 
-inpath = r'E:\陈惺师姐\npp稳定性之滑动窗口.xlsx'
+inpath = r'D:\Cheng\npp稳定性之滑动窗口0725.xlsx'
 
-data = pd.read_excel(inpath,index_col=False,header=0)
-RCP4_5 = data.iloc[:,:6]
+data = pd.read_excel(inpath,index_col = 0,header=None)
+RCP4_5 = data.iloc[:,0:5]
 RCP8_5 = data.iloc[:,6:]
 
 y_tickets = [u"青藏高原区",u"青藏高原区",u"热带-亚热带季风区",u"温带季风区",u"温带大陆区",u"全国"]  #Bug1
-x_tickets = [' ','2010-2039','2040-2069',' ','2070-2094']   #Bug2
+x_tickets = ['','2011-2030','2031-2050','2051-2070',' ','2071-2094']   #Bug2
 
 zlabels = ['RCP4.5NPP稳定性','RCP8.5NPP稳定性']
 
-x = np.array([10,20,30,40])
+x = np.array([10,20,30,40,50])
 y = np.array([20,30,40,50,60,70])
 
 
-RCP8_5_z_1 = list(RCP8_5.iloc[:30,1:].mean())
-RCP8_5_z_2 = list(RCP8_5.iloc[30:60,1:].mean())
-RCP8_5_z_3 = list(RCP8_5.iloc[60:,1:].mean())
-RCP8_5_z = np.array(RCP8_5_z_1 + RCP8_5_z_2 + RCP8_5_z_3).reshape(3,5)  #转为二维数组
+RCP8_5_z_1 = list(RCP8_5.iloc[:20,:].mean())
+RCP8_5_z_2 = list(RCP8_5.iloc[20:40,:].mean())
+RCP8_5_z_3 = list(RCP8_5.iloc[40:60,:].mean())
+RCP8_5_z_4 = list(RCP8_5.iloc[60:,:].mean())
+RCP8_5_z = np.array(RCP8_5_z_1 + RCP8_5_z_2 + RCP8_5_z_3 + RCP8_5_z_4 ).reshape(4,5)  #转为二维数组
 
-RCP4_5_z_1 = list(RCP4_5.iloc[:30,1:].mean())
-RCP4_5_z_2 = list(RCP4_5.iloc[30:60,1:].mean())
-RCP4_5_z_3 = list(RCP4_5.iloc[60:,1:].mean())
-RCP4_5_z = np.array(RCP4_5_z_1 + RCP4_5_z_2 + RCP4_5_z_3).reshape(3,5)
+RCP4_5_z_1 = list(RCP4_5.iloc[:20,:].mean())
+RCP4_5_z_2 = list(RCP4_5.iloc[20:40,:].mean())
+RCP4_5_z_3 = list(RCP4_5.iloc[40:60,:].mean())
+RCP4_5_z_4 = list(RCP4_5.iloc[60:,:].mean())
+RCP4_5_z = np.array(RCP4_5_z_1 + RCP4_5_z_2 + RCP4_5_z_3 + RCP4_5_z_4).reshape(4,5)
 
 n = 0
 
 color = ['steelblue','darkgoldenrod','steelblue','darkgoldenrod','steelblue',
          'darkturquoise','gold','darkturquoise','gold','darkturquoise',
-         'deepskyblue','yellow','deepskyblue','yellow','deepskyblue']
+         'deepskyblue','yellow','deepskyblue','yellow','deepskyblue',
+         'LightSteelBlue','LightYellow','LightSteelBlue','LightYellow','LightSteelBlue'
+         ]
     
 for RCP in [RCP4_5_z,RCP8_5_z]:
         
-    fig = plt.figure(dpi=300,figsize=(8,8))   #设置画布大小
+    fig = plt.figure(dpi=600,figsize=(8,8))   #设置画布大小
     
     ax = fig.add_subplot(111,projection='3d')
     height = np.zeros_like(RCP)  #大小一样的数组，值都为零
