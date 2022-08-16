@@ -29,7 +29,7 @@ End_name：  数据后缀
 #path.DoModal()
 #Input_folder = path.GetPathName()
 
-Input_folder = r'F:\MsTMIP\NPP'
+Input_folder = r'E:\Wang'
 
 if Input_folder == '':
     Input_folder = input('请输入文件夹名称：(Sample: F:\\MsTMIP\\NPP or F:/MsTMIP/NPP )——————————————')
