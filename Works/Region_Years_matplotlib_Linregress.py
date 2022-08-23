@@ -114,7 +114,6 @@ def Get_tif_xy(Sample_tif):
             py = adfGeoTransform[3] + j * adfGeoTransform[4] + i * adfGeoTransform[5]
             row_x.append(px)
             row_y.append(py)
-            #print(px,py)
         arr_x.append(row_x)
         arr_y.append(row_y)
         

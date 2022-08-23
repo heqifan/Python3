@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Aug 17 10:13:54 2022
+
+@author: HYF
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Tue Aug 16 15:46:13 2022
 
 @author: HYF
@@ -36,7 +43,9 @@ End_name：  数据后缀
 #path.DoModal()
 #Input_folder = path.GetPathName()
 
-Input_folder = r'K:\HeQiFan\0816\drive\p'
+Input_folder = r'K:\HeQiFan\0816\drive\precipitation'
+
+# Input_folder =  r'K:\HeQiFan\0816\drive\temperature'
 
 if Input_folder == '':
     Input_folder = input('请输入文件夹名称：(Sample: F:\\MsTMIP\\NPP or F:/MsTMIP/NPP )——————————————')
@@ -65,7 +74,7 @@ def NC_to_tiffs(data,Output_folder):
     nc_data_obj = nc.Dataset(data)
     #print(nc_data_obj,type(nc_data_obj))              # 了解nc的数据类型，<class 'netCDF4._netCDF4.Dataset'>
     #print(nc_data_obj.variables)                      #了解nc数据的基本信息
-    key=list(nc_data_obj.variables.keys())            #获取时间，经度，纬度，波段的名称信息，这些可能是不一样的
+    key = list(nc_data_obj.variables.keys())            #获取时间，经度，纬度，波段的名称信息，这些可能是不一样的
     lon_loc = [i for i,x in enumerate(key) if (x.find('lon'.upper())!=-1 or x.find('lon'.lower())!=-1)][0]   #模糊查找属于经度的名称
     lat_loc = [i for i,x in enumerate(key) if (x.find('lat'.upper())!=-1 or x.find('lat'.lower())!=-1)][0]   #模糊查找属于纬度的名称
     global band_loc
@@ -78,12 +87,12 @@ def NC_to_tiffs(data,Output_folder):
     key_lat = key[lat_loc]              #获取纬度的名称  
     Lon = nc_data_obj.variables[key_lon][:]   #获取每个像元的经度
     Lat = nc_data_obj.variables[key_lat][:]    #获取每个像元的纬度
-    band = np.asarray(nc_data_obj.variables[key_band]).astype(float)  #获取对应波段的像元的值，类型为数组
+    band = np.asarray(nc_data_obj.variables[key_band]).astype('float64') #获取对应波段的像元的值，类型为数组
     global Filldata
     print("请查看你的填充值：",nc_data_obj.variables[key_band])
-    # Filldata = nc_data_obj.variables[key_band].missing_value
-    # scale = nc_data_obj.variables[key_band].scale_factor
-    # add_offset = nc_data_obj.variables[key_band].add_offset
+    #Filldata = nc_data_obj.variables[key_band].missing_value
+    scale = nc_data_obj.variables[key_band].scale_factor
+    add_offset = nc_data_obj.variables[key_band].add_offset
     if Filldata == 99999:   #获取从用户那获取填充值
         print("请查看你的填充值：",nc_data_obj.variables[key_band])
         Filldata =  eval(input("请输入您刚刚查看的填充值(float)：——————————"))
@@ -96,49 +105,56 @@ def NC_to_tiffs(data,Output_folder):
         N_Lon = len(Lon)   #如果Lon为一维的话，就取长度
     else:         
         N_Lon = len(Lon[0])   #如果Lon为二维的话，就取宽度
-    Lon_Res = (LonMax - LonMin) /(float(N_Lon)-1)
+    Lon_Res = (LonMax - LonMin) / (float(N_Lon)-1)
     Lat_Res = (LatMax - LatMin) / (float(N_Lat)-1)
     
-    if Lat[0]<=Lat[-1]:
-        print(f'{data}里面的数据是倒的，现在进行矫正............')
     #创建.tif文件
     print(band.shape[0])
-    # print(scale)
-    for i in range(band.shape[0]):
-        driver = gdal.GetDriverByName('GTiff')   # 创建驱动          
-        arr1 = band[i,:,:]               # 获取不同时间段的数据
-        out_tif_name = Output_folder + os.sep + data.split('\\')[-1][:-4] + '_' + str(i) + '.tif'
-        out_tif = driver.Create(out_tif_name,N_Lon,N_Lat,1,gdal.GDT_Float32) 
+    print(scale)
+    print(add_offset)
+    band_mean_sca_offset = np.nansum((band),axis=0)*1000
+    # band_mean_sca_offset = np.nansum((band*scale)+add_offset,axis=0)
+    # band_mean_sca_offset = np.nansum((band*scale),axis=0)
+    
+    # band_mean_sca_offset = np.nanmean((band),axis=0)
+    # band_mean_sca_offset = np.nanmean((band*scale)+add_offset,axis=0)-273.15
+    # band_mean_sca_offset = np.nanmean(band,axis=0).astype('float64')-273.15
+    # band_mean_sca_offset = np.nanmean((band*scale),axis=0)
+    # for i in range(band.shape[0]):
+    driver = gdal.GetDriverByName('GTiff')   # 创建驱动          
+        # arr1 = band[i,:,:]               # 获取不同时间段的数据
+    out_tif_name = Output_folder + os.sep + 'Sum'  + '.tif'
+    # out_tif_name = Output_folder + os.sep + 'Sum'  + '.tif'
+    out_tif = driver.Create(out_tif_name,N_Lon,N_Lat,1,gdal.GDT_Float64) 
         # 设置影像的显示范围
         #-Lat_Res一定要是-的
-        geotransform = (LonMin, Lon_Res, 0, LatMax, 0, -Lat_Res)
-        out_tif.SetGeoTransform(geotransform)
+    geotransform = (LonMin, Lon_Res, 0, LatMax, 0, -Lat_Res)
+    out_tif.SetGeoTransform(geotransform)
             
         #获取地理坐标系统信息，用于选取需要的地理坐标系统
-        srs = osr.SpatialReference()
-        srs.ImportFromEPSG(coord)                               # 定义输出的坐标系为"WGS 84"，AUTHORITY["EPSG","4326"]
-        out_tif.SetProjection(srs.ExportToWkt())               # 给新建图层赋予投影信息
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(coord)                               # 定义输出的坐标系为"WGS 84"，AUTHORITY["EPSG","4326"]
+    out_tif.SetProjection(srs.ExportToWkt())               # 给新建图层赋予投影信息
             
         #更改异常值    
         #arr1[arr1[:, :]< 1000000] = -32767
         
         #数据写出
-        if arr1.ndim==2:     #如果本来就是二维数组就不变
-            a = arr1[:,:]   
-        else:                #将三维数组转为二维
-            a = arr1[0,:,:]  
-        if Lat[0]<=Lat[-1]:   #如果维度上的第一个值小于等于最后的的一个值就认为是倒序，就得进行数组的倒序排列，否则就是正向，不用倒序排列
-            a=a[::-1]
-            print('矫正完成...........')
-        else:
-            pass
-        # a = a*scale+add_offset
-        out_tif.GetRasterBand(1).WriteArray(a)   #写入数据
-        out_tif.GetRasterBand(1).SetNoDataValue(Filldata)   #设置输出数据的无效值
-        out_tif.FlushCache() # 将数据写入硬盘
-        print(f'{i} is ok!!!!')
-        del out_tif       # 注意必须关闭tif文件
-    print('ALL is ok !!!!!')
+    if band_mean_sca_offset.ndim==2:     #如果本来就是二维数组就不变
+       pass
+    else:                #将三维数组转为二维
+        print('转为二维')
+        band_mean_sca_offset = band_mean_sca_offset[0,:,:]  
+    if Lat[0]<=Lat[-1]:   #如果维度上的第一个值小于等于最后的的一个值就认为是倒序，就得进行数组的倒序排列，否则就是正向，不用倒序排列
+        band_mean_sca_offset=band_mean_sca_offset[::-1]
+        print('矫正完成...........')
+    else:
+        pass
+    out_tif.GetRasterBand(1).WriteArray(band_mean_sca_offset)   #写入数据
+    out_tif.GetRasterBand(1).SetNoDataValue(Filldata)   #设置输出数据的无效值
+    out_tif.FlushCache() # 将数据写入硬盘
+    print(f'{Output_folder} is ok!!!!')
+    del out_tif       # 注意必须关闭tif文件
 
 
 
@@ -163,7 +179,7 @@ def nc_to_tif(Input_folder:str):
         print("被读取的nc文件有：",data_list)
         for i in range(len(data_list)):
             dat = data_list[i]
-            Output_folder = os.path.split(Input_folder)[0]  + os.sep+ 'out_' + os.path.split(Input_folder)[-1] + os.sep + str(i+1)  
+            Output_folder = os.path.split(Input_folder)[0]  + os.sep+ 'out_' + os.path.split(Input_folder)[-1] + os.sep + str(2000+i)  + '_Sum_'
             print("输出位置为: ",Output_folder)
             if os.path.exists(Output_folder):
                 shutil.rmtree(Output_folder)          #如果文件夹存在就删除
